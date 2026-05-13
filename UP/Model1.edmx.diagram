@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="a7600a1bc4dd43e28e0285bad028d065" Name="Diagram1" ZoomLevel="61">
+        <EntityTypeShape EntityType="UP_GordovModel.Books" Width="1.5" PointX="5.25" PointY="8.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="UP_GordovModel.BooksGenres" Width="1.5" PointX="7.5" PointY="9.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="UP_GordovModel.BookStatuses" Width="1.5" PointX="8.25" PointY="6.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="UP_GordovModel.Complaints" Width="1.5" PointX="7.5" PointY="12.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="UP_GordovModel.Genres" Width="1.5" PointX="5.25" PointY="5.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="UP_GordovModel.ReadingLists" Width="1.5" PointX="10.5" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="UP_GordovModel.Reviews" Width="1.5" PointX="10.5" PointY="5.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="UP_GordovModel.RoleApplications" Width="1.5" PointX="5.25" PointY="12.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="UP_GordovModel.Roles" Width="1.5" PointX="0.75" PointY="10.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="UP_GordovModel.sysdiagrams" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="UP_GordovModel.TargetTypes" Width="1.5" PointX="8.25" PointY="17.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="UP_GordovModel.UnfreezeApplications" Width="1.5" PointX="10.5" PointY="13.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="UP_GordovModel.Users" Width="1.5" PointX="3" PointY="9.25" IsExpanded="true" />
+        <AssociationConnector Association="UP_GordovModel.FK__Books__UserId__5AEE82B9" ManuallyRouted="false" />
+        <AssociationConnector Association="UP_GordovModel.FK__BooksGenr__BookI__5BE2A6F2" ManuallyRouted="false" />
+        <AssociationConnector Association="UP_GordovModel.FK__Complaint__BookI__5DCAEF64" ManuallyRouted="false" />
+        <AssociationConnector Association="UP_GordovModel.FK__ReadingLi__BookI__619B8048" ManuallyRouted="false" />
+        <AssociationConnector Association="UP_GordovModel.FK__Reviews__BookId__6477ECF3" ManuallyRouted="false" />
+        <AssociationConnector Association="UP_GordovModel.FK__UnfreezeA__Targe__68487DD7" ManuallyRouted="false" />
+        <AssociationConnector Association="UP_GordovModel.FK__BooksGenr__Genre__5CD6CB2B" ManuallyRouted="false" />
+        <AssociationConnector Association="UP_GordovModel.FK__ReadingLi__BookS__628FA481" ManuallyRouted="false" />
+        <AssociationConnector Association="UP_GordovModel.FK__Complaint__Revie__5EBF139D" ManuallyRouted="false" />
+        <AssociationConnector Association="UP_GordovModel.FK__Complaint__Targe__60A75C0F" ManuallyRouted="false" />
+        <AssociationConnector Association="UP_GordovModel.FK__Complaint__UserI__5FB337D6" ManuallyRouted="false" />
+        <AssociationConnector Association="UP_GordovModel.FK__ReadingLi__UserI__6383C8BA" ManuallyRouted="false" />
+        <AssociationConnector Association="UP_GordovModel.FK__Reviews__UserId__656C112C" ManuallyRouted="false" />
+        <AssociationConnector Association="UP_GordovModel.FK__RoleAppli__UserI__66603565" ManuallyRouted="false" />
+        <AssociationConnector Association="UP_GordovModel.FK_Users_Roles" ManuallyRouted="false" />
+        <AssociationConnector Association="UP_GordovModel.FK__UnfreezeA__Targe__6754599E" ManuallyRouted="false" />
+        <AssociationConnector Association="UP_GordovModel.FK__UnfreezeA__UserI__693CA210" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
