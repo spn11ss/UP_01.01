@@ -1,9 +1,83 @@
-﻿<Application x:Class="UP.App"
+﻿<!--
+/// <summary>
+/// Файл ресурсов приложения. Содержит глобальные стили, используемые во всех окнах и страницах.
+/// </summary>
+/// <remarks>
+/// Приложение стартует с окна авторизации (StartupUri="AuthWindow.xaml").
+/// Все стили, определённые здесь, доступны из любого места приложения.
+/// </remarks>
+-->
+<Application x:Class="UP.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:UP"
-             StartupUri="MainWindow.xaml">
+             StartupUri="AuthWindow.xaml">
+
+    <!--
+    /// <summary>
+    /// Стиль для кнопок бокового меню (Sidebar)
+    /// </summary>
+    /// <remarks>
+    /// Применяется к кнопкам навигации в главном окне (Каталог, Списки, Администрирование, Страница автора, Профиль).
+    /// Параметры стиля:
+    /// - Ширина и высота кнопки: 60x60 пикселей
+    /// - Отступы: 10px сверху/снизу, 5px слева/справа
+    /// - Фон прозрачный (Transparent), без рамки
+    /// - Курсор меняется на "руку" при наведении (Cursor="Hand")
+    /// 
+    /// Триггеры:
+    /// - При наведении мыши (IsMouseOver="True") фон меняется на тёмно-зелёный (#6F7D54)
+    ///   для визуальной обратной связи
+    /// </remarks>
+    -->
     <Application.Resources>
-         
+        <Style x:Key="SidebarButton" TargetType="Button">
+            <Setter Property="Width" Value="60"/>
+            <Setter Property="Height" Value="60"/>
+            <Setter Property="Margin" Value="10,5"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#6F7D54"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!--
+        /// <summary>
+        /// Стиль для кнопок действий в карточках книг
+        /// </summary>
+        /// <remarks>
+        /// Используется в следующих страницах:
+        /// - CatalogPage: кнопка "В список" (добавление книги в пользовательский список)
+        /// - ReadingListsPage: кнопка "Переместить" (перемещение книги между списками: В планах/Читаю/Прочитано/Заброшено)
+        /// 
+        /// Параметры стиля:
+        /// - Фоновый цвет: светло-зелёный (#C2CDB2) - соответствует цветовой гамме приложения
+        /// - Цвет текста: тёмно-зелёный (#6F7D54) - обеспечивает контраст с фоном
+        /// - Внутренние отступы: 10px сверху/снизу, 5px слева/справа (увеличивает область клика)
+        /// - Курсор меняется на "руку" (Cursor="Hand") - визуальный сигнал, что элемент кликабелен
+        /// - Без рамки (BorderThickness="0")
+        /// - Внешние отступы: 5px со всех сторон (Margin="5") - разделение между соседними кнопками
+        /// Триггеры:
+        /// - При наведении мыши (IsMouseOver="True") фон меняется на тёмно-коричневый (#4A3424)
+        ///   для визуальной обратной связи
+        /// </remarks>
+        -->
+        <Style x:Key="CardButton" TargetType="Button">
+            <Setter Property="Background" Value="#C2CDB2"/>
+            <Setter Property="Foreground" Value="#6F7D54"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="5"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#4A3424"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Application.Resources>
 </Application>

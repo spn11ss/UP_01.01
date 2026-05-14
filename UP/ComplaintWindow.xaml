@@ -1,0 +1,102 @@
+﻿<Window x:Class="UP.ComplaintWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UP"
+        mc:Ignorable="d"
+        Title="Жалоба" Height="325" Width="400"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!--
+        /// <summary>
+        /// Заголовок окна подачи жалобы
+        /// </summary>
+        /// <remarks>
+        /// Текст заголовка динамически меняется в зависимости от контекста вызова:
+        /// - Для книги: "Жалоба на книгу"
+        /// - Для автора: "Жалоба на автора"
+        /// - Для отзыва: "Жалоба на отзыв"
+        /// 
+        /// Цвет текста: #4A3424 (тёмно-коричневый) - основной цвет заголовков в приложении.
+        /// Размер шрифта: 16, жирное начертание, отступ снизу 15px.
+        /// </remarks>
+        -->
+        <TextBlock x:Name="TitleText" Grid.Row="0" Text="Подача жалобы" 
+                   FontSize="16" FontWeight="Bold" Foreground="#4A3424" 
+                   Margin="0,0,0,15"/>
+
+        <!--
+        /// <summary>
+        /// Текст-подсказка поля ввода причины
+        /// </summary>
+        /// <remarks>
+        /// Цвет текста: #4A3424 (тёмно-коричневый), отступ снизу 10px.
+        /// </remarks>
+        -->
+        <TextBlock Grid.Row="1" Text="Укажите причину жалобы:" 
+                   Foreground="#4A3424" Margin="0,0,0,10"/>
+
+        <!--
+        /// <summary>
+        /// Поле для ввода причины жалобы
+        /// </summary>
+        /// <remarks>
+        /// Параметры:
+        /// - TextWrapping="Wrap" - автоматический перенос текста
+        /// - AcceptsReturn="True" - разрешает ввод многострочного текста
+        /// - VerticalScrollBarVisibility="Auto" - автоматическое появление полосы прокрутки
+        /// - Height="120" - фиксированная высота
+        /// - Padding="10" - внутренние отступы для удобства ввода
+        /// - FontSize="13" - размер шрифта
+        /// - BorderBrush="#4A3424" - рамка тёмно-коричневого цвета
+        /// - BorderThickness="1" - толщина рамки 1 пиксель
+        /// 
+        /// Пользователь должен указать причину жалобы для рассмотрения модератором.
+        /// </remarks>
+        -->
+        <TextBox x:Name="ReasonBox" Grid.Row="2" TextWrapping="Wrap" 
+                 Height="120" Padding="10" FontSize="13"
+                 AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
+                 BorderBrush="#4A3424" BorderThickness="1"/>
+
+        <!--
+        /// <summary>
+        /// Панель с кнопками управления
+        /// </summary>
+        /// <remarks>
+        /// Содержит две кнопки:
+        /// 1. CancelBtn - отмена (закрывает окно без отправки жалобы)
+        /// 2. SubmitBtn - отправить (сохраняет жалобу, если причина указана)
+        /// 
+        /// Кнопка "Отмена":
+        /// - Фон: #C2CDB2 (светло-зелёный) - соответствует цветовой гамме
+        /// - Текст: #4A3424 (тёмно-коричневый)
+        /// 
+        /// Кнопка "Отправить":
+        /// - Фон: #4A3424 (тёмно-коричневый) - основной цвет акцентов
+        /// - Текст: #C2CDB2 (светло-зелёный)
+        /// 
+        /// Обе кнопки имеют курсор "рука" (Cursor="Hand") при наведении.
+        /// Кнопки расположены в правой части панели (HorizontalAlignment="Right").
+        /// </remarks>
+        -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" 
+                    HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button x:Name="CancelBtn" Content="Отмена" Width="80" Height="35"
+                    Margin="0,0,10,0" Click="CancelBtn_Click"
+                    Background="#C2CDB2" Foreground="#4A3424" Cursor="Hand"/>
+            <Button x:Name="SubmitBtn" Content="Отправить" Width="80" Height="35"
+                    Click="SubmitBtn_Click"
+                    Background="#4A3424" Foreground="#C2CDB2" Cursor="Hand"/>
+        </StackPanel>
+    </Grid>
+</Window>

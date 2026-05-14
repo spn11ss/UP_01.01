@@ -1,0 +1,157 @@
+﻿<Window x:Class="UP.AddEditBookWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UP"
+        mc:Ignorable="d"
+        Title="Книга" Height="700" Width="500"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!--
+            /// <summary>
+            /// Заголовок окна добавления/редактирования книги
+            /// </summary>
+            /// <remarks>
+            /// Динамически меняется в зависимости от режима:
+            /// - "Добавление книги" - при создании новой книги
+            /// - "Редактирование книги" - при редактировании существующей
+            /// 
+            /// Цвет текста: #4A3424 (тёмно-коричневый) - основной цвет заголовков.
+            /// Размер шрифта: 18, жирное начертание, отступ снизу 15px.
+            /// </remarks>
+            -->
+            <TextBlock x:Name="TitleText" Grid.Row="0" Text="Добавление книги" 
+                       FontSize="18" FontWeight="Bold" Foreground="#4A3424" Margin="0,0,0,15"/>
+
+            <!--
+            /// <summary>
+            /// Поле ввода названия книги
+            /// </summary>
+            /// <remarks>
+            /// Обязательное поле. При сохранении проверяется на пустоту.
+            /// Высота: 35px, внутренние отступы: 10px, отступ снизу: 15px.
+            /// Цвет текста: #4A3424.
+            /// </remarks>
+            -->
+            <TextBlock Grid.Row="1" Text="Название:" FontWeight="Bold" Foreground="#4A3424" Margin="0,0,0,5"/>
+            <TextBox x:Name="BookNameBox" Grid.Row="2" Margin="0,0,0,15" Padding="10" Height="35"
+                     Foreground="#4A3424" BorderBrush="#4A3424" BorderThickness="1"/>
+
+            <!--
+            /// <summary>
+            /// Поле ввода описания книги
+            /// </summary>
+            /// <remarks>
+            /// Обязательное поле. Поддерживает многострочный ввод (AcceptsReturn="True").
+            /// Высота: 80px, внутренние отступы: 10px.
+            /// </remarks>
+            -->
+            <TextBlock Grid.Row="3" Text="Описание:" FontWeight="Bold" Foreground="#4A3424" Margin="0,0,0,5"/>
+            <TextBox x:Name="DescriptionBox" Grid.Row="4" TextWrapping="Wrap" Height="80" 
+                     Padding="10" Margin="0,0,0,15" AcceptsReturn="True"
+                     Foreground="#4A3424" BorderBrush="#4A3424" BorderThickness="1"/>
+
+            <!--
+            /// <summary>
+            /// Список жанров для выбора (множественный выбор)
+            /// </summary>
+            /// <remarks>
+            /// Отображает все жанры из таблицы Genres с чекбоксами.
+            /// Пользователь может выбрать несколько жанров одновременно.
+            /// Высота списка: 120px.
+            /// 
+            /// Каждый элемент содержит:
+            /// - CheckBox с названием жанра (GenreName)
+            /// - IsChecked привязан к полю IsSelected в модели GenreCheckBox
+            /// 
+            /// Обязательное поле - должен быть выбран хотя бы один жанр.
+            /// </remarks>
+            -->
+            <TextBlock Grid.Row="5" Text="Жанры (выберите несколько):" FontWeight="Bold" Foreground="#4A3424" Margin="0,0,0,5"/>
+            <ListBox x:Name="GenresListBox" Grid.Row="6" Height="120" Margin="0,0,0,15" 
+                     SelectionMode="Multiple" Foreground="#4A3424" BorderBrush="#4A3424" BorderThickness="1">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <CheckBox Content="{Binding GenreName}" IsChecked="{Binding IsSelected}"
+                                  Foreground="#4A3424"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <!--
+            /// <summary>
+            /// Поле ввода текста книги
+            /// </summary>
+            /// <remarks>
+            /// Обязательное поле. Содержит полный текст книги для чтения.
+            /// Поддерживает многострочный ввод и прокрутку.
+            /// Высота: 150px, внутренние отступы: 10px.
+            /// </remarks>
+            -->
+            <TextBlock Grid.Row="7" Text="Текст книги:" FontWeight="Bold" Foreground="#4A3424" Margin="0,0,0,5"/>
+            <TextBox x:Name="TextBox" Grid.Row="8" TextWrapping="Wrap" Height="150" 
+                     Padding="10" Margin="0,0,0,15" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
+                     Foreground="#4A3424" BorderBrush="#4A3424" BorderThickness="1"/>
+
+            <!--
+            /// <summary>
+            /// Поле ввода пути к обложке книги
+            /// </summary>
+            /// <remarks>
+            /// Пример: "/images/crime_punishment.jpg"
+            /// Необязательное поле. Если не заполнено, используется путь по умолчанию "/images/default.jpg".
+            /// Файлы обложек должны находиться в папке проекта.
+            /// </remarks>
+            -->
+            <TextBlock Grid.Row="9" Text="Путь к обложке (пример: /images/book.jpg):" FontWeight="Bold" Foreground="#4A3424" Margin="0,0,0,5"/>
+            <TextBox x:Name="ImageBox" Grid.Row="10" Padding="10" Margin="0,0,0,15" Height="35"
+                     Foreground="#4A3424" BorderBrush="#4A3424" BorderThickness="1"/>
+
+            <!--
+            /// <summary>
+            /// Панель с кнопками управления
+            /// </summary>
+            /// <remarks>
+            /// Содержит две кнопки:
+            /// 1. Отмена - закрывает окно без сохранения
+            /// 2. Сохранить - проверяет данные и сохраняет книгу в базу
+            /// 
+            /// Кнопка "Отмена":
+            /// - Фон: #C2CDB2 (светло-зелёный)
+            /// - Текст: #4A3424 (тёмно-коричневый)
+            /// 
+            /// Кнопка "Сохранить":
+            /// - Фон: #4A3424 (тёмно-коричневый)
+            /// - Текст: #C2CDB2 (светло-зелёный)
+            /// 
+            /// Обе кнопки имеют курсор "рука" при наведении.
+            /// Кнопки расположены в правой части окна (HorizontalAlignment="Right").
+            /// </remarks>
+            -->
+            <StackPanel Grid.Row="11" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                <Button Content="Отмена" Width="80" Height="35" Margin="0,0,10,0"
+                        Click="CancelBtn_Click" Background="#C2CDB2" Foreground="#4A3424" Cursor="Hand"/>
+                <Button x:Name="SaveBtn" Content="Сохранить" Width="80" Height="35"
+                        Click="SaveBtn_Click" Background="#4A3424" Foreground="#C2CDB2" Cursor="Hand"/>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Window>

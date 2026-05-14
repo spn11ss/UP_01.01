@@ -1,0 +1,286 @@
+﻿<Page x:Class="UP.ReadingListsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:UP"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="Мои списки"
+      Background="Transparent">
+
+    <Page.Resources>
+        <!--
+        /// <summary>
+        /// Стиль для кнопок-вкладок переключения списков чтения
+        /// </summary>
+        /// <remarks>
+        /// Определяет внешний вид четырёх вкладок: "В планах", "Читаю", "Прочитано", "Заброшено".
+        /// 
+        /// Параметры:
+        /// - Внутренние отступы: 20px слева/справа, 10px сверху/снизу
+        /// - Размер шрифта: 14
+        /// - Фон прозрачный, курсор "рука" при наведении
+        /// - Нижняя рамка толщиной 2px (используется для подсветки активной вкладки)
+        /// - Цвет текста по умолчанию: #4A3424 (тёмно-коричневый)
+        /// 
+        /// Триггеры:
+        /// - При наведении мыши (IsMouseOver) текст меняет цвет на #C2CDB2 (светло-зелёный)
+        /// 
+        /// Активная вкладка подсвечивается через код (UpdateTabStyles) путём изменения BorderBrush.
+        /// </remarks>
+        -->
+        <Style x:Key="StatusTab" TargetType="Button">
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0,0,0,2"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="#4A3424"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="#C2CDB2"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!--
+        /// <summary>
+        /// Стиль для карточки книги в списках
+        /// </summary>
+        /// <remarks>
+        /// Определяет внешний вид карточки книги на странице списков:
+        /// - Белый фон для контраста
+        /// 
+        /// Содержимое карточки:
+        /// - Обложка книги (Image)
+        /// - Название книги
+        /// - Имя автора
+        /// - Рейтинг (⭐ X.X/10)
+        /// - Кнопка "Переместить" для изменения статуса книги
+        /// </remarks>
+        -->
+        <Style x:Key="BookCard" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!--
+        /// <summary>
+        /// Заголовок страницы
+        /// </summary>
+        /// <remarks>
+        /// Отображает текст "Мои списки книг".
+        /// Фон: #4A3424 (тёмно-коричневый)
+        /// Цвет текста: #8A9A6E (оливково-зелёный) - контрастный акцент
+        /// Внутренние отступы: 15px, внешние отступы: 10px
+        /// </remarks>
+        -->
+        <Border Grid.Row="0" Background="#4A3424" Padding="15" Margin="10">
+            <TextBlock Text="Мои списки книг" FontSize="20" FontWeight="Bold" Foreground="#8A9A6E"/>
+        </Border>
+
+        <!--
+        /// <summary>
+        /// Панель с вкладками для переключения между списками
+        /// </summary>
+        /// <remarks>
+        /// Содержит четыре кнопки:
+        /// - PlanTab ("В планах") - статус ID = 1
+        /// - ReadingTab ("Читаю") - статус ID = 2
+        /// - ReadTab ("Прочитано") - статус ID = 3
+        /// - AbandonedTab ("Заброшено") - статус ID = 4
+        /// 
+        /// При клике на вкладку загружаются книги с соответствующим статусом.
+        /// Активная вкладка визуально выделяется через метод UpdateTabStyles().
+        /// 
+        /// Фон панели: белый, выравнивание кнопок по центру.
+        /// </remarks>
+        -->
+        <Border Grid.Row="1" Background="White" Margin="10,0,10,10">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button x:Name="PlanTab" Content="В планах" Style="{StaticResource StatusTab}"
+                        Click="PlanTab_Click" Tag="1"/>
+                <Button x:Name="ReadingTab" Content="Читаю" Style="{StaticResource StatusTab}"
+                        Click="ReadingTab_Click" Tag="2"/>
+                <Button x:Name="ReadTab" Content="Прочитано" Style="{StaticResource StatusTab}"
+                        Click="ReadTab_Click" Tag="3"/>
+                <Button x:Name="AbandonedTab" Content="Заброшено" Style="{StaticResource StatusTab}"
+                        Click="AbandonedTab_Click" Tag="4"/>
+            </StackPanel>
+        </Border>
+
+        <!--
+        /// <summary>
+        /// Панель поиска, фильтрации и отображения книг
+        /// </summary>
+        /// <remarks>
+        /// Состоит из двух основных областей:
+        /// 1. Верхняя панель с элементами управления:
+        ///    - SearchBox: поиск по названию или автору
+        ///    - SortBox: сортировка по названию или рейтингу
+        ///    - GenreFilterBox: фильтрация по жанрам
+        ///    - ResetBtn: сброс всех фильтров
+        /// 
+        /// 2. Область отображения книг (ScrollViewer + ItemsControl):
+        ///    - Отображает книги текущего пользователя с выбранным статусом
+        ///    - Каждая книга имеет кнопку "Переместить" для изменения статуса
+        ///    - При клике на карточку открывается страница детального просмотра
+        /// 
+        /// Фон панели: #8A9A6E (оливково-зелёный)
+        /// </remarks>
+        -->
+        <Border Grid.Row="2" Background="#8A9A6E" Padding="15" Margin="10,0,10,10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!--
+                    /// <summary>
+                    /// Поле поиска книг в текущем списке
+                    /// </summary>
+                    /// <remarks>
+                    /// Фильтрует книги по совпадению с названием или автором.
+                    /// Фон: #C2CDB2, цвет текста: #4A3424.
+                    /// При вводе текста вызывает SearchBox_TextChanged.
+                    /// </remarks>
+                    -->
+                    <TextBox x:Name="SearchBox" Grid.Column="0" Background="#C2CDB2" Foreground="#4A3424" FontSize="14" Padding="10,8"
+                             TextChanged="SearchBox_TextChanged"/>
+
+                    <!--
+                    /// <summary>
+                    /// Выпадающий список для сортировки книг
+                    /// </summary>
+                    /// <remarks>
+                    /// Варианты сортировки: по названию (↑/↓) и по рейтингу (↑/↓).
+                    /// Ширина: 120px, отступ слева: 10px.
+                    /// </remarks>
+                    -->
+                    <ComboBox x:Name="SortBox" Grid.Column="1" Width="120" Margin="10,0,0,0"
+                              SelectionChanged="SortBox_SelectionChanged" Foreground="#4A3424">
+                        <ComboBoxItem Content="По названию ↑" IsSelected="True"/>
+                        <ComboBoxItem Content="По названию ↓"/>
+                        <ComboBoxItem Content="По рейтингу ↑"/>
+                        <ComboBoxItem Content="По рейтингу ↓"/>
+                    </ComboBox>
+
+                    <!--
+                    /// <summary>
+                    /// Выпадающий список для фильтрации по жанрам
+                    /// </summary>
+                    /// <remarks>
+                    /// Загружается из таблицы Genres (метод LoadGenres).
+                    /// Пункт "Все жанры" отключает фильтрацию.
+                    /// Ширина: 150px, отступ слева: 10px.
+                    /// </remarks>
+                    -->
+                    <ComboBox x:Name="GenreFilterBox" Grid.Column="2" Width="150" Margin="10,0,0,0"
+                              SelectionChanged="GenreFilterBox_SelectionChanged" Foreground="#4A3424">
+                        <ComboBoxItem Content="Все жанры" IsSelected="True"/>
+                    </ComboBox>
+
+                    <!--
+                    /// <summary>
+                    /// Кнопка сброса всех фильтров
+                    /// </summary>
+                    /// <remarks>
+                    /// Очищает поле поиска и устанавливает сортировку/фильтр по умолчанию.
+                    /// Красный фон (#E74C3C) для привлечения внимания.
+                    /// </remarks>
+                    -->
+                    <Button x:Name="ResetBtn" Grid.Column="3" Content="Сбросить" Width="80" Margin="10,0,0,0"
+                            Click="ResetBtn_Click" Background="#E74C3C" Foreground="#C2CDB2"
+                            Cursor="Hand" BorderThickness="0" Padding="8,5"/>
+                </Grid>
+
+                <!-- Область отображения сетки книг -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl x:Name="BooksItemsControl" Margin="10">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <!--
+                                /// <summary>
+                                /// Карточка книги в списке
+                                /// </summary>
+                                /// <remarks>
+                                /// При клике на карточку (MouseLeftButtonDown) открывается страница книги.
+                                /// Содержит:
+                                /// - Обложку книги (Image)
+                                /// - Название книги (TextBlock)
+                                /// - Имя автора (TextBlock)
+                                /// - Рейтинг (TextBlock)
+                                /// - Кнопку "Переместить" (Button) для изменения статуса книги
+                                /// 
+                                /// Ширина карточки: 200px, отступы: 10px.
+                                /// </remarks>
+                                -->
+                                <Border Style="{StaticResource BookCard}" Width="200" Margin="10"
+                                        MouseLeftButtonDown="BookCard_MouseLeftButtonDown" Tag="{Binding ID}">
+                                    <StackPanel>
+                                        <Image Source="{Binding Image}" Width="180" Height="260" 
+                                               Stretch="UniformToFill" Margin="10,10,10,5"/>
+
+                                        <TextBlock Text="{Binding BookName}" FontWeight="Bold" 
+                                                   FontSize="14" Foreground="#4A3424" TextWrapping="Wrap"
+                                                   MaxHeight="50" Margin="10,0,10,5"
+                                                   TextAlignment="Center"/>
+
+                                        <TextBlock Text="{Binding AuthorName}" FontSize="11" 
+                                                   Foreground="#4A3424" TextAlignment="Center"
+                                                   Margin="10,0,10,5"/>
+
+                                        <TextBlock Text="{Binding AvgRating, StringFormat='⭐ {0:F1}/10'}" 
+                                                   FontSize="12" Foreground="#E74C3C" 
+                                                   HorizontalAlignment="Center" Margin="10,0,10,5"/>
+
+                                        <Button Content="Переместить" Background="#C2CDB2" Foreground="#4A3424"
+                                                FontSize="11" Padding="5" Margin="10,0,10,10" Cursor="Hand"
+                                                Click="MoveBtn_Click" Tag="{Binding ID}"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <!--
+                /// <summary>
+                /// Сообщение об отсутствии книг в текущем списке
+                /// </summary>
+                /// <remarks>
+                /// Отображается, когда в выбранном списке нет книг (например, "Читаю" пуст).
+                /// По умолчанию скрыт (Visibility="Collapsed"), становится видимым через код.
+                /// </remarks>
+                -->
+                <TextBlock x:Name="EmptyText" Grid.Row="1" Text="В этом списке нет книг" 
+                           FontSize="16" Foreground="#4A3424" 
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Visibility="Collapsed"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

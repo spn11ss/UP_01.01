@@ -1,0 +1,277 @@
+﻿<!--
+/// <summary>
+/// Окно авторизации и регистрации пользователя
+/// </summary>
+/// <remarks>
+/// Окно открывается первым при запуске приложения (StartupUri="AuthWindow.xaml" в App.xaml).
+/// Размер окна: 700x450, открывается по центру экрана.
+/// Окно имеет два режима: вход (по умолчанию) и регистрация, переключаемые по ссылке внизу.
+/// 
+/// При входе проверяется логин и пароль из таблицы Users.
+/// При успешном входе:
+/// - Сохраняется текущий пользователь в Session.CurrentUser
+/// - Если аккаунт заморожен - показывается предупреждение
+/// - Открывается главное окно MainWindow
+/// - Текущее окно закрывается
+///
+/// При регистрации:
+/// - Проверяется заполнение всех полей
+/// - Проверяется совпадение паролей
+/// - Проверяется уникальность логина, email и имени пользователя
+/// - Создаётся новый пользователь с ролью "Читатель" (RoleId = 1)
+/// - После успешной регистрации переключается на режим входа
+/// </remarks>
+-->
+<Window x:Class="UP.AuthWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UP"
+        mc:Ignorable="d"
+        Title="Читай, Пиши и не спиши" Height="700" Width="450"
+        WindowStartupLocation="CenterScreen"
+        >
+
+    <Window.Resources>
+        <!--
+        /// <summary>
+        /// Стиль для текстовых полей ввода (TextBox)
+        /// </summary>
+        /// <remarks>
+        /// Задаёт единый внешний вид для всех текстовых полей:
+        /// - Высота 40 пикселей
+        /// - Отступ снизу 15 пикселей
+        /// - Внутренние отступы 15px слева/справа, 10px сверху/снизу
+        /// - Размер шрифта 14
+        /// - Серая рамка толщиной 1 пиксель
+        /// - Белый фон
+        /// - Текст выравнивается по центру по вертикали
+        /// </remarks>
+        -->
+        <Style TargetType="TextBox" x:Key="AuthTextBox">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="BorderBrush" Value="#DDD"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <!--
+        /// <summary>
+        /// Стиль для полей ввода пароля (PasswordBox)
+        /// </summary>
+        /// <remarks>
+        /// Имеет те же параметры, что и AuthTextBox:
+        /// - Высота 40, отступы, размер шрифта 14
+        /// - Серая рамка, белый фон
+        /// Используется отдельно, так как PasswordBox не наследуется от TextBox
+        /// </remarks>
+        -->
+        <Style TargetType="PasswordBox" x:Key="AuthPasswordBox">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="BorderBrush" Value="#DDD"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <!--
+        /// <summary>
+        /// Стиль для кнопки действия (Войти / Зарегистрироваться)
+        /// </summary>
+        /// <remarks>
+        /// Параметры кнопки:
+        /// - Высота 45 пикселей
+        /// - Фоновый цвет #C2CDB2 (светло-зелёный)
+        /// - Цвет текста #6F7D54 (тёмно-зелёный)
+        /// - Размер шрифта 16, жирное начертание
+        /// - Курсор меняется на "руку" при наведении
+        /// - При наведении фон меняется на тёмно-коричневый (#4A3424) для визуального отклика
+        /// </remarks>
+        -->
+        <Style TargetType="Button" x:Key="AuthButton">
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Background" Value="#C2CDB2"/>
+            <Setter Property="Foreground" Value="#6F7D54"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#4A3424"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!--
+        /// <summary>
+        /// Фоновый слой окна
+        /// </summary>
+        -->
+        <Border Background="#8A9A6E"/>
+
+        <!--
+        /// <summary>
+        /// Основной контейнер с формой авторизации
+        /// </summary>
+        /// <remarks>
+        /// Белая карточка шириной 380px, расположена по центру окна.
+        /// Содержит заголовок, поля ввода, кнопку и ссылку переключения режима.
+        /// Все элементы уложены в вертикальный StackPanel с отступами для равномерного распределения.
+        /// </remarks>
+        -->
+        <Border Width="380" Background="White"
+                VerticalAlignment="Center" HorizontalAlignment="Center">
+
+            <StackPanel Margin="30">
+
+                <!--
+                /// <summary>
+                /// Основной заголовок окна
+                /// </summary>
+                /// <remarks>
+                /// Текст "ДОБРО ПОЖАЛОВАТЬ" отображается по умолчанию.
+                /// В зависимости от режима (вход/регистрация) заголовок динамически меняется.
+                /// Цвет текста #4A3424 (тёмно-коричневый) соответствует цветовой гамме текстов приложения.
+                /// Размер шрифта 22, жирное начертание, выравнивание по центру.
+                /// </remarks>
+                -->
+                <TextBlock x:Name="TitleText" Text="ДОБРО ПОЖАЛОВАТЬ" 
+                           FontSize="22" FontWeight="Bold" Foreground="#4A3424" 
+                           HorizontalAlignment="Center" Margin="0,0,0,10"/>
+
+                <!--
+                /// <summary>
+                /// Название приложения
+                /// </summary>
+                /// <remarks>
+                /// "Читай, Пиши и не спиши" - название приложения компании "ШутИКроль".
+                /// Отображается всегда, независимо от выбранного режима.
+                /// Цвет текста #4A3424 (тёмно-коричневый), размер шрифта 12.
+                /// </remarks>
+                -->
+                <TextBlock Text="Читай, Пиши и не спиши" 
+                           FontSize="12" Foreground="#4A3424" 
+                           HorizontalAlignment="Center" Margin="0,0,0,30"/>
+
+                <!--
+                /// <summary>
+                /// Панель полей для режима ВХОДА
+                /// </summary>
+                /// <remarks>
+                /// Содержит два поля: Логин и Пароль.
+                /// Видима по умолчанию (Visibility="Visible").
+                /// При переключении в режим регистрации скрывается (Visibility="Collapsed").
+                /// Цвет подписей полей #4A3424 (тёмно-коричневый) для единообразия дизайна.
+                /// </remarks>
+                -->
+                <StackPanel x:Name="LoginPanel">
+                    <TextBlock Text="Логин" FontSize="12" Foreground="#4A3424" Margin="0,0,0,5"/>
+                    <TextBox x:Name="LoginBox" Style="{StaticResource AuthTextBox}"/>
+
+                    <TextBlock Text="Пароль" FontSize="12" Foreground="#4A3424" Margin="0,0,0,5"/>
+                    <PasswordBox x:Name="PasswordBox" Style="{StaticResource AuthPasswordBox}"/>
+                </StackPanel>
+
+                <!--
+                /// <summary>
+                /// Панель полей для режима РЕГИСТРАЦИИ
+                /// </summary>
+                /// <remarks>
+                /// Содержит 5 полей: Логин, Электронная почта, Имя пользователя, Пароль, Подтверждение пароля.
+                /// По умолчанию скрыта (Visibility="Collapsed").
+                /// При переключении в режим регистрации становится видимой, а панель входа скрывается.
+                /// Все поля обязательны для заполнения, валидация выполняется в коде (AuthWindow.xaml.cs).
+                /// Цвет подписей полей #4A3424 (тёмно-коричневый) для единообразия дизайна.
+                /// </remarks>
+                -->
+                <StackPanel x:Name="RegisterPanel" Visibility="Collapsed">
+                    <TextBlock Text="Логин" FontSize="12" Foreground="#4A3424" Margin="0,0,0,5"/>
+                    <TextBox x:Name="RegLoginBox" Style="{StaticResource AuthTextBox}" />
+
+                    <TextBlock Text="Электронная почта" FontSize="12" Foreground="#4A3424" Margin="0,0,0,5"/>
+                    <TextBox x:Name="EmailBox" Style="{StaticResource AuthTextBox}" />
+
+                    <TextBlock Text="Имя пользователя" FontSize="12" Foreground="#4A3424" Margin="0,0,0,5"/>
+                    <TextBox x:Name="UserNameBox" Style="{StaticResource AuthTextBox}" />
+
+                    <TextBlock Text="Пароль" FontSize="12" Foreground="#4A3424" Margin="0,0,0,5"/>
+                    <PasswordBox x:Name="RegPasswordBox" Style="{StaticResource AuthPasswordBox}"/>
+
+                    <TextBlock Text="Подтверждение пароля" FontSize="12" Foreground="#4A3424" Margin="0,0,0,5"/>
+                    <PasswordBox x:Name="ConfirmPasswordBox" Style="{StaticResource AuthPasswordBox}"/>
+                </StackPanel>
+
+                <!--
+                /// <summary>
+                /// Кнопка основного действия
+                /// </summary>
+                /// <remarks>
+                /// Текст кнопки меняется в зависимости от режима: "ВОЙТИ" (вход) или "ЗАРЕГИСТРИРОВАТЬСЯ" (регистрация).
+                /// При нажатии вызывает метод ActionButton_Click, который в зависимости от активного режима
+                /// вызывает Login() или Register() для обработки данных пользователя.
+                /// Стиль кнопки определён в ресурсах как AuthButton.
+                /// </remarks>
+                -->
+                <Button x:Name="ActionButton" Content="ВОЙТИ" Style="{StaticResource AuthButton}"
+                        Margin="0,10,0,0" Click="ActionButton_Click"/>
+
+                <!--
+                /// <summary>
+                /// Блок отображения ошибок валидации
+                /// </summary>
+                /// <remarks>
+                /// Отображает сообщения об ошибках при входе или регистрации.
+                /// Цвет текста красный (#E74C3C) для привлечения внимания.
+                /// Текст автоматически переносится при необходимости (TextWrapping="Wrap").
+                /// </remarks>
+                --> 
+                <TextBlock x:Name="ErrorText" Foreground="#E74C3C" FontSize="12" 
+                           TextWrapping="Wrap" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+
+                <!--
+                /// <summary>
+                /// Ссылка для переключения между режимами входа и регистрации
+                /// </summary>
+                /// <remarks>
+                /// В режиме входа отображается текст: "Нет аккаунта? Зарегистрироваться"
+                /// В режиме регистрации текст меняется на: "Уже есть аккаунт? Войти"
+                /// 
+                /// При клике вызывает метод ToggleText_MouseLeftButtonDown, который:
+                /// - Переключает видимость панелей LoginPanel и RegisterPanel
+                /// - Меняет текст заголовка (TitleText) и кнопки (ActionButton)
+                /// - Обновляет текст самой ссылки (ToggleLink)
+                /// 
+                /// Цвет ссылки #6F7D54 (тёмно-зелёный), подчёркнута (TextDecorations="Underline").
+                /// Курсор меняется на "руку" (Cursor="Hand") при наведении для интуитивной понятности.
+                /// </remarks>
+                -->
+                <TextBlock x:Name="ToggleText" FontSize="12" Foreground="#4A3424" 
+                           HorizontalAlignment="Center" Margin="0,20,0,0"
+                           Cursor="Hand" MouseLeftButtonDown="ToggleText_MouseLeftButtonDown">
+                    <Run Text="Нет аккаунта?"/>
+                    <Run x:Name="ToggleLink" Text=" Зарегистрироваться" Foreground="#6F7D54" TextDecorations="Underline"/>
+                </TextBlock>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

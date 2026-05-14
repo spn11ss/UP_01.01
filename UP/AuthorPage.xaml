@@ -1,0 +1,205 @@
+﻿<Page x:Class="UP.AuthorPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:UP"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="Страница автора"
+      Background="Transparent">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!--
+        /// <summary>
+        /// Верхняя панель страницы автора
+        /// </summary>
+        /// <remarks>
+        /// Содержит заголовок "Мои книги" и кнопку "Добавить книгу".
+        /// Фон: #4A3424 (тёмно-коричневый) - основной цвет акцентов приложения.
+        /// Внутренние отступы: 15px, внешние отступы: 10px.
+        /// 
+        /// Кнопка "Добавить книгу":
+        /// - Фон: #C2CDB2 (светло-зелёный)
+        /// - Белый текст
+        /// - При нажатии открывает окно AddEditBookWindow для создания новой книги
+        /// </remarks>
+        -->
+        <Border Grid.Row="0" Background="#4A3424" Padding="15" Margin="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Мои книги" FontSize="20" FontWeight="Bold" Foreground="#C2CDB2"/>
+                <Button Grid.Column="1" Content="Добавить книгу" Background="#C2CDB2" 
+                        Foreground="#4A3424" Padding="10,5" Click="AddBookBtn_Click"/>
+            </Grid>
+        </Border>
+
+        <!--
+        /// <summary>
+        /// Основная область страницы с вкладками и списками книг
+        /// </summary>
+        /// <remarks>
+        /// Содержит:
+        /// - Две вкладки: "Активные книги" и "Замороженные книги"
+        /// - ActiveBooksControl: список активных книг автора (IsFrozen = false)
+        /// - FrozenBooksControl: список замороженных книг автора (IsFrozen = true)
+        /// - EmptyText: сообщение при отсутствии книг
+        /// 
+        /// Вкладки переключаются с помощью кнопок ActiveTab и FrozenTab.
+        /// При клике на карточку книги открывается страница детального просмотра.
+        /// </remarks>
+        -->
+        <Border Grid.Row="1" Margin="10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!--
+                /// <summary>
+                /// Панель переключения между активными и замороженными книгами
+                /// </summary>
+                /// <remarks>
+                /// ActiveTab (Активные книги):
+                /// - Фон активной вкладки: #C2CDB2 (светло-зелёный)
+                /// - Текст: #4A3424 (тёмно-коричневый)
+                /// - Отображает книги с IsFrozen = false
+                /// - Показывает только кнопку "Редактировать"
+                /// 
+                /// FrozenTab (Замороженные книги):
+                /// - Фон активной вкладки: #C2CDB2 (светло-зелёный)
+                /// - Текст: #4A3424 (тёмно-коричневый)
+                /// - Отображает книги с IsFrozen = true
+                /// - Показывает кнопки "Редактировать" и "Оспорить"
+                /// 
+                /// Неактивная вкладка имеет серый фон.
+                /// </remarks>
+                -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <Button x:Name="ActiveTab" Content="Активные книги" 
+                            Background="#C2CDB2" Foreground="#4A3424" Padding="15,8"
+                            Click="ActiveTab_Click"/>
+                    <Button x:Name="FrozenTab" Content="Замороженные книги" 
+                            Background="#8A9A6E" Foreground="White" Padding="15,8"
+                            Click="FrozenTab_Click"/>
+                </StackPanel>
+
+                <!--
+                /// <summary>
+                /// Список активных книг автора
+                /// </summary>
+                /// <remarks>
+                /// Отображает книги, которые не заморожены (IsFrozen = false).
+                /// Каждая карточка книги содержит:
+                /// - Обложку книги (Image)
+                /// - Название книги (BookName)
+                /// - Имя автора (AuthorName)
+                /// - Кнопку "Редактировать" (открывает AddEditBookWindow для редактирования)
+                /// 
+                /// При клике на карточку открывается страница детального просмотра книги.
+                /// Карточки располагаются с помощью WrapPanel (перенос по горизонтали).
+                /// </remarks>
+                -->
+                <ItemsControl x:Name="ActiveBooksControl" Grid.Row="1" Margin="10">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="White" Width="200" Margin="10"
+                                    MouseLeftButtonDown="BookCard_MouseLeftButtonDown"
+                                    Tag="{Binding ID}">
+                                <StackPanel>
+                                    <Image Source="{Binding Image}" Width="180" Height="260" 
+                                           Stretch="UniformToFill" Margin="10,10,10,5"/>
+                                    <TextBlock Text="{Binding BookName}" FontWeight="Bold" 
+                                               FontSize="14" TextWrapping="Wrap"
+                                               Margin="10,5,10,5" TextAlignment="Center" Foreground="#4A3424"/>
+                                    <TextBlock Text="{Binding AuthorName}" FontSize="11" 
+                                               Foreground="#4A3424" TextAlignment="Center"
+                                               Margin="10,0,10,5"/>
+                                    <Button Content="Редактировать" Background="#C2CDB2" Foreground="#4A3424"
+                                            Margin="10,0,10,10" Click="EditBookBtn_Click" Tag="{Binding ID}"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!--
+                /// <summary>
+                /// Список замороженных книг автора
+                /// </summary>
+                /// <remarks>
+                /// Отображает замороженные книги (IsFrozen = true).
+                /// По умолчанию скрыт (Visibility="Collapsed").
+                /// Каждая карточка книги содержит:
+                /// - Обложку книги (Image)
+                /// - Название книги (BookName)
+                /// - Имя автора (AuthorName)
+                /// - Кнопку "Редактировать" (открывает AddEditBookWindow для редактирования)
+                /// - Кнопку "Оспорить" (открывает AppealWindow для подачи заявки на разморозку)
+                /// 
+                /// При клике на карточку открывается страница детального просмотра книги.
+                /// Карточки располагаются с помощью WrapPanel (перенос по горизонтали).
+                /// </remarks>
+                -->
+                <ItemsControl x:Name="FrozenBooksControl" Grid.Row="1" Margin="10" Visibility="Collapsed">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="White" Width="200" Margin="10"
+                                    MouseLeftButtonDown="BookCard_MouseLeftButtonDown"
+                                    Tag="{Binding ID}">
+                                <StackPanel>
+                                    <Image Source="{Binding Image}" Width="180" Height="260" 
+                                           Stretch="UniformToFill" Margin="10,10,10,5"/>
+                                    <TextBlock Text="{Binding BookName}" FontWeight="Bold" 
+                                               FontSize="14" TextWrapping="Wrap"
+                                               Margin="10,5,10,5" TextAlignment="Center" Foreground="#4A3424"/>
+                                    <TextBlock Text="{Binding AuthorName}" FontSize="11" 
+                                               Foreground="#4A3424" TextAlignment="Center"
+                                               Margin="10,0,10,5"/>
+                                    <Button Content="Редактировать" Background="#C2CDB2" Foreground="#4A3424"
+                                            Margin="10,0,10,5" Click="EditBookBtn_Click" Tag="{Binding ID}"/>
+                                    <Button Content="Оспорить" Background="#E74C3C" Foreground="White"
+                                            Margin="10,0,10,10" Click="AppealBookBtn_Click" Tag="{Binding ID}"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!--
+                /// <summary>
+                /// Сообщение об отсутствии книг
+                /// </summary>
+                /// <remarks>
+                /// Отображается, когда у автора нет книг в соответствующем списке.
+                /// По умолчанию скрыт (Visibility="Collapsed").
+                /// Текст: "У вас нет книг", цвет: #4A3424.
+                /// </remarks>
+                -->
+                <TextBlock x:Name="EmptyText" Grid.Row="1" Text="У вас нет книг" 
+                           Foreground="#4A3424" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Visibility="Collapsed"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

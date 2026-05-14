@@ -1,0 +1,251 @@
+﻿<Page x:Class="UP.CatalogPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:UP"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="Каталог книг"
+      Background="Transparent">
+
+    <Page.Resources>
+        <!--
+        /// <summary>
+        /// Стиль для карточки книги в каталоге
+        /// </summary>
+        /// <remarks>
+        /// Определяет внешний вид карточки, представляющей каждую книгу в каталоге:
+        /// - Белый фон (Background="White") для контраста с общим фоном страницы
+        /// - Курсор меняется на "руку" (Cursor="Hand") при наведении, указывая на кликабельность
+        /// 
+        /// Применяется к элементу Border, который содержит:
+        /// - Обложку книги (Image)
+        /// - Название книги (TextBlock)
+        /// - Имя автора (TextBlock)
+        /// - Рейтинг книги (TextBlock)
+        /// - Кнопку "В список" (Button)
+        /// </remarks>
+        -->
+        <Style x:Key="BookCard" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!--
+        /// <summary>
+        /// Панель поиска и фильтрации книг
+        /// </summary>
+        /// <remarks>
+        /// Расположена в верхней части страницы (Grid.Row="0").
+        /// Содержит элементы для:
+        /// - Поиска книг по названию или автору (TextBox SearchBox)
+        /// - Сортировки по названию или рейтингу (ComboBox SortBox)
+        /// - Фильтрации по жанрам (ComboBox GenreFilterBox)
+        /// - Сброса всех фильтров (Button ResetBtn)
+        /// 
+        /// Фон панели: #8A9A6E (оливково-зелёный)
+        /// Внутренние отступы: 15px, внешние отступы: 10px.
+        /// </remarks>
+        -->
+        <Border Grid.Row="0" Background="#8A9A6E" Padding="15" Margin="10">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!--
+                    /// <summary>
+                    /// Поле поиска книг
+                    /// </summary>
+                    /// <remarks>
+                    /// Занимает всю доступную ширину (Width="*").
+                    /// При вводе текста вызывается обработчик SearchBox_TextChanged,
+                    /// который фильтрует книги по совпадению с названием или автором.
+                    /// 
+                    /// Оформление:
+                    /// - Без рамки (BorderThickness="0")
+                    /// - Фон: #C2CDB2 (светло-зелёный)
+                    /// - Цвет текста: #4A3424 (тёмно-коричневый)
+                    /// - Размер шрифта: 14, внутренние отступы: 10px сверху/снизу, 8px слева/справа
+                    /// </remarks>
+                    -->
+                    <TextBox x:Name="SearchBox" Grid.Column="0" BorderThickness="0" FontSize="14" Padding="10,8" Background="#C2CDB2"
+                             Foreground="#4A3424" TextChanged="SearchBox_TextChanged"/>
+
+                    <!--
+                    /// <summary>
+                    /// Выпадающий список для сортировки книг
+                    /// </summary>
+                    /// <remarks>
+                    /// Варианты сортировки:
+                    /// - По названию ↑ (по возрастанию)
+                    /// - По названию ↓ (по убыванию)
+                    /// - По рейтингу ↑ (от низкого к высокому)
+                    /// - По рейтингу ↓ (от высокого к низкому)
+                    /// 
+                    /// При изменении выбранного элемента вызывается SortBox_SelectionChanged,
+                    /// который пересортировывает список книг.
+                    /// 
+                    /// Оформление:
+                    /// - Ширина: 120px
+                    /// - Без рамки, отступ слева: 10px
+                    /// - Цвет текста: #4A3424 (тёмно-коричневый)
+                    /// </remarks>
+                    -->
+                    <ComboBox x:Name="SortBox" Grid.Column="1"  BorderThickness="0" Width="120" Margin="10,0,0,0"
+                              SelectionChanged="SortBox_SelectionChanged" Foreground="#4A3424">
+                        <ComboBoxItem Content="По названию ↑" IsSelected="True"/>
+                        <ComboBoxItem Content="По названию ↓"/>
+                        <ComboBoxItem Content="По рейтингу ↑"/>
+                        <ComboBoxItem Content="По рейтингу ↓"/>
+                    </ComboBox>
+
+                    <!--
+                    /// <summary>
+                    /// Выпадающий список для фильтрации по жанрам
+                    /// </summary>
+                    /// <remarks>
+                    /// Загружается из таблицы Genres (LoadGenres() в коде страницы).
+                    /// По умолчанию выбран пункт "Все жанры", который отключает фильтрацию.
+                    /// При выборе конкретного жанра отображаются только книги, имеющие этот жанр.
+                    /// 
+                    /// Оформление:
+                    /// - Ширина: 150px
+                    /// - Без рамки, отступ слева: 10px
+                    /// - Цвет текста: #4A3424 (тёмно-коричневый)
+                    /// </remarks>
+                    -->
+                    <ComboBox x:Name="GenreFilterBox" Grid.Column="2" Width="150" BorderThickness="0" Margin="10,0,0,0"
+                              SelectionChanged="GenreFilterBox_SelectionChanged" Foreground="#4A3424">
+                        <ComboBoxItem Content="Все жанры" IsSelected="True"/>
+                    </ComboBox>
+
+                    <!--
+                    /// <summary>
+                    /// Кнопка сброса всех фильтров
+                    /// </summary>
+                    /// <remarks>
+                    /// При нажатии вызывает ResetBtn_Click, который:
+                    /// - Очищает поле поиска
+                    /// - Устанавливает сортировку в значение по умолчанию ("По названию ↑")
+                    /// - Устанавливает фильтр жанров в "Все жанры"
+                    /// 
+                    /// Оформление:
+                    /// - Красный фон (#E74C3C) для привлечения внимания
+                    /// - Текст светло-зелёный (#C2CDB2), жирный (FontWeight="Bold")
+                    /// - Без рамки, внутренние отступы: 8px сверху/снизу, 5px слева/справа
+                    /// - Курсор меняется на "руку" при наведении
+                    /// </remarks>
+                    -->
+                    <Button x:Name="ResetBtn" Grid.Column="3" Content="Сбросить" 
+                            Width="80" Margin="10,0,0,0" Click="ResetBtn_Click"
+                            Background="#E74C3C" Foreground="#C2CDB2" Cursor="Hand"
+                            BorderThickness="0" FontWeight="Bold" Padding="8,5"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!--
+        /// <summary>
+        /// Область отображения сетки книг
+        /// </summary>
+        /// <remarks>
+        /// Расположена в основной области страницы (Grid.Row="1").
+        /// Использует ScrollViewer для обеспечения прокрутки при большом количестве книг.
+        /// 
+        /// ItemsControl с WrapPanel отображает книги в виде карточек, которые автоматически
+        /// переносятся на новую строку при недостатке места по горизонтали.
+        /// 
+        /// Каждая карточка книги:
+        /// - При клике вызывает BookCard_MouseLeftButtonDown (открытие страницы книги)
+        /// - Кнопка "В список" вызывает AddToListBtn_Click (добавление книги в пользовательский список)
+        /// </remarks>
+        -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl x:Name="BooksItemsControl" Margin="10">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <!--
+                        /// <summary>
+                        /// Карточка отдельной книги
+                        /// </summary>
+                        /// <remarks>
+                        /// Содержит:
+                        /// - Обложку книги (Image) - путь из поля Image
+                        /// - Название книги (TextBlock) - из поля BookName
+                        /// - Имя автора (TextBlock) - из поля AuthorName
+                        /// - Рейтинг (TextBlock) - из поля AvgRating, формат: "⭐ X.X/10"
+                        /// - Кнопку "В список" - для добавления книги в личные списки пользователя
+                        /// 
+                        /// Ширина карточки: 200px, отступы: 10px
+                        /// </remarks>
+                        -->
+                        <Border Style="{StaticResource BookCard}" Width="200" Margin="10" 
+                                MouseLeftButtonDown="BookCard_MouseLeftButtonDown"
+                                Tag="{Binding ID}">
+                            <StackPanel>
+
+                                <Image Source="{Binding Image}" Width="180" Height="260" 
+                                       Stretch="UniformToFill" Margin="10,10,10,5"/>
+
+                                <TextBlock Text="{Binding BookName}" Foreground="#4A3424" FontWeight="Bold" 
+                                           FontSize="14" TextWrapping="Wrap"
+                                           MaxHeight="50" Margin="10,0,10,5"
+                                           TextAlignment="Center"/>
+
+                                <TextBlock Text="{Binding AuthorName}" FontSize="11" 
+                                           Foreground="#4A3424" TextAlignment="Center"
+                                           Margin="10,0,10,5"/>
+
+                                <TextBlock Text="{Binding AvgRating, StringFormat='⭐ {0:F1}/10'}" 
+                                           FontSize="12" Foreground="#E74C3C" 
+                                           HorizontalAlignment="Center" Margin="10,0,10,5"/>
+
+                                <Button Content="В список" Background="#C2CDB2" Foreground="#6F7D54" FontWeight="Bold"
+                                        FontSize="11" Padding="5" Margin="10,0,10,10" Cursor="Hand" BorderThickness="0"
+                                        Click="AddToListBtn_Click" Tag="{Binding ID}"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!--
+        /// <summary>
+        /// Сообщение об отсутствии книг
+        /// </summary>
+        /// <remarks>
+        /// Отображается, когда после применения фильтров не найдено ни одной книги.
+        /// По умолчанию скрыт (Visibility="Collapsed").
+        /// Становится видимым в коде страницы (ApplyFilters), когда результат фильтрации пуст.
+        /// 
+        /// Оформление:
+        /// - Размер шрифта: 16
+        /// - Цвет текста: #4A3424 (тёмно-коричневый)
+        /// - Выравнивание по центру как по горизонтали, так и по вертикали
+        /// </remarks>
+        -->
+        <TextBlock x:Name="EmptyText" Grid.Row="1" Text="Книги не найдены" 
+                   FontSize="16" Foreground="#4A3424" 
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Visibility="Collapsed"/>
+    </Grid>
+</Page>
