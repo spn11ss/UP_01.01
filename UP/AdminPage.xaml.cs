@@ -104,11 +104,11 @@ namespace UP
 
                 var buttonsPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 10, 0, 0) };
 
-                var acceptBtn = new Button { Content = "Принять", Background = Brushes.Green, Foreground = Brushes.White, Margin = new Thickness(0, 0, 10, 0), Padding = new Thickness(10, 5, 10, 5) };
+                var acceptBtn = new Button { Content = "Принять", Background = Brushes.DarkOliveGreen, Foreground = Brushes.White, Margin = new Thickness(0, 0, 10, 0), Padding = new Thickness(10, 5, 10, 5) };
                 acceptBtn.Click += (s, e) => AcceptComplaint(complaint.ID);
                 buttonsPanel.Children.Add(acceptBtn);
 
-                var rejectBtn = new Button { Content = "Отклонить", Background = Brushes.Red, Foreground = Brushes.White, Padding = new Thickness(10, 5, 10, 5) };
+                var rejectBtn = new Button { Content = "Отклонить", Background = Brushes.SaddleBrown, Foreground = Brushes.White, Padding = new Thickness(10, 5, 10, 5) };
                 rejectBtn.Click += (s, e) => RejectComplaint(complaint.ID);
                 buttonsPanel.Children.Add(rejectBtn);
 

@@ -218,8 +218,7 @@
                                            FontSize="12" Foreground="#E74C3C" 
                                            HorizontalAlignment="Center" Margin="10,0,10,5"/>
 
-                                <Button Content="В список" Background="#C2CDB2" Foreground="#6F7D54" FontWeight="Bold"
-                                        FontSize="11" Padding="5" Margin="10,0,10,10" Cursor="Hand" BorderThickness="0"
+                                <Button Content="В список" Style="{StaticResource CardButton}"
                                         Click="AddToListBtn_Click" Tag="{Binding ID}"/>
                             </StackPanel>
                         </Border>
